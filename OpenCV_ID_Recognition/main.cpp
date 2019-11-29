@@ -60,7 +60,7 @@ int main()
 	}
 
 	Mat binOriImg;
-	Mat eleMent = getStructuringElement(MORPH_RECT, Size(8, 8));	// 设置形态学处理窗口大小
+	Mat eleMent = getStructuringElement(MORPH_RECT, Size(2, 2));	// 设置形态学处理窗口大小
 	dilate(resizeImg, binOriImg, eleMent);	// 多次膨胀操作
 	dilate(resizeImg, binOriImg, eleMent);	// 多次膨胀操作
 	dilate(resizeImg, binOriImg, eleMent);	// 多次膨胀操作
