@@ -24,15 +24,17 @@ int main()
 		return -1;
 	}
 
-	imshow("原图", originImg);	// 显示图片
+	//imshow("原图", originImg);	// 显示图片
 	cout << "width = " << originImg.rows << "   colum = " << originImg.cols << endl;
 
-	Mat resizeImg;
+	Mat resizeImgOri;
 	if (originImg.cols > 640)
 	{
-		resize(originImg, resizeImg, Size(640, 640 * originImg.rows / originImg.cols));
+		resize(originImg, resizeImgOri, Size(640, 640 * originImg.rows / originImg.cols));
 	}
-	imshow("尺寸变换后的图", resizeImg);
+	imshow("尺寸变换后的图", resizeImgOri);
+
+	Mat resizeImg = resizeImgOri.clone();
 
 	Mat grayImg, gussImg;
 	cvtColor(resizeImg, grayImg, COLOR_RGB2GRAY);	// 灰化
@@ -107,11 +109,14 @@ int main()
 	//imshow("二值化处理后图", resizeImg);
 	imshow("形态学处理后图片2", binOriImg);
 
+	cvtColor(binOriImg, binOriImg, COLOR_RGB2GRAY);
+
+
 	Mat coutourImg, inImg;
 	coutourImg = binOriImg.clone();
 	vector<vector<Point> > contours;
 	coutourImg.convertTo(inImg, CV_8UC1);
-	findContours(inImg, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);	// 还有问题
+	findContours(inImg, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);	// 找到形状
 
 	// 画出轮廓
 	drawContours(coutourImg, contours, -1, Scalar(0, 255, 0), 1);
@@ -123,14 +128,25 @@ int main()
 	{
 		Rect curRect = boundingRect(Mat(contours[i]));
 		cout << "contours " << i << " height = " << curRect.height << "   width = " << curRect.width << endl;
-		if ((float)curRect.width / curRect.height >= 2.2 && (float)curRect.width / curRect.height <= 3.6)
+		if ((float)curRect.width / curRect.height >= 2.2 && (float)curRect.width / curRect.height <= 3.6 && 
+			((curRect.width * curRect.height) > 10000) && (curRect.width * curRect.height) < 15000)
 		{
+			cout << "-----------------找到！！！！！-------------" << endl;
 			cout << "R.x = " << curRect.x << "  R.y = " << curRect.y << endl;
-			rectangle(coutourImg, curRect, Scalar(0, 0, 255), 2);
-			//roiImg = originImg(curRect);
+			rectangle(coutourImg, curRect, Scalar(0, 0, 255), 3);
+			roiImg = resizeImgOri(curRect);	// 找到了车牌位置
 		}
 	}
+	imshow("形态学处理后图片3", roiImg);	// 找到了车牌位置
 
+	Mat canImg;
+	Canny(roiImg, canImg, 450, 120, 3);
+	//imshow("形态学处理后图片4", canImg);
+
+	// 二值化
+	Mat roiThreadImg;
+	threshold(canImg, roiThreadImg, 50, 255, THRESH_BINARY);
+	imshow("形态学处理后图片5", roiThreadImg);
 	
 
 	
