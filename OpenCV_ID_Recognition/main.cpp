@@ -35,6 +35,27 @@ int main()
 	}
 	imshow("尺寸变换后的图", resizeImg);
 
+	Mat grayImg, gussImg;
+	cvtColor(resizeImg, grayImg, COLOR_RGB2GRAY);	// 灰化
+	GaussianBlur(grayImg, gussImg, Size(3, 3), 3, 0); //高斯函数滤波
+
+	Mat candyImage;
+	Canny(gussImg, candyImage, 500, 200, 3);	// 边缘检测
+	imshow("边缘检测后的图", candyImage);
+
+	// 形态学的处理
+	Mat binOriImg;
+	Mat eleMent = getStructuringElement(MORPH_RECT, Size(2, 2));	// 设置形态学处理窗口大小
+	dilate(candyImage, binOriImg, eleMent);	// 多次膨胀操作
+	dilate(candyImage, binOriImg, eleMent);	// 多次膨胀操作
+	dilate(candyImage, binOriImg, eleMent);	// 多次膨胀操作
+
+	erode(binOriImg, binOriImg, eleMent);	// 进行多次腐蚀
+	erode(binOriImg, binOriImg, eleMent);	// 进行多次腐蚀
+	erode(binOriImg, binOriImg, eleMent);	// 进行多次腐蚀
+
+	imshow("形态学处理后图片1", binOriImg);
+
 	// 二值化处理
 	for (int i = 0 ; i < resizeImg.rows ; i++)
 	{
@@ -59,8 +80,8 @@ int main()
 		}
 	}
 
-	Mat binOriImg;
-	Mat eleMent = getStructuringElement(MORPH_RECT, Size(2, 2));	// 设置形态学处理窗口大小
+	//Mat binOriImg;
+	//Mat eleMent = getStructuringElement(MORPH_RECT, Size(2, 2));	// 设置形态学处理窗口大小
 	dilate(resizeImg, binOriImg, eleMent);	// 多次膨胀操作
 	dilate(resizeImg, binOriImg, eleMent);	// 多次膨胀操作
 	dilate(resizeImg, binOriImg, eleMent);	// 多次膨胀操作
@@ -70,8 +91,8 @@ int main()
 	erode(binOriImg, binOriImg, eleMent);	// 进行多次腐蚀
 
 
-	imshow("二值化处理后图", resizeImg);
-	imshow("形态学处理后图片", binOriImg);
+	//imshow("二值化处理后图", resizeImg);
+	imshow("形态学处理后图片2", binOriImg);
 
 	
 
