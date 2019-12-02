@@ -26,7 +26,7 @@ int main()
 	//imshow("原图", originImg);	// 显示图片
 	cout << "width = " << originImg.rows << "   colum = " << originImg.cols << endl;
 
-	Mat resizeImgOri;
+	Mat resizeImgOri;	// 修改图片为固定尺寸
 	if (originImg.cols > 640)
 	{
 		resize(originImg, resizeImgOri, Size(640, 640 * originImg.rows / originImg.cols));
@@ -36,13 +36,13 @@ int main()
 	Mat resizeImg = resizeImgOri.clone();
 
 	Mat grayImg, gussImg;
-	cvtColor(resizeImg, grayImg, COLOR_RGB2GRAY);	// 灰化
+	cvtColor(resizeImg, grayImg, COLOR_RGB2GRAY);		// 灰化
 
-#if 1
+#if 1		// 第一种方法，兼容性比较好，及其推荐
 
-	GaussianBlur(grayImg, gussImg, Size(3, 3), 3, 0); //高斯函数滤波
+	GaussianBlur(grayImg, gussImg, Size(3, 3), 3, 0);	//高斯函数滤波
 	Mat candyImage;
-	Canny(gussImg, candyImage, 300, 200, 3);	// 边缘检测
+	Canny(gussImg, candyImage, 300, 200, 3);			// 边缘检测
 	imshow("边缘检测后的图", candyImage);
 
 	// 形态学的处理
@@ -50,7 +50,7 @@ int main()
 	Point m_point(-1, -1);
 	Mat eleMentX = getStructuringElement(MORPH_RECT, Size(19, 1));	// 设置形态学处理窗口大小
 	dilate(candyImage, dilateImg, eleMentX, m_point, 2);	// 多次膨胀操作
-	erode(dilateImg, erodeImg, eleMentX, m_point, 4);	// 进行多次腐蚀
+	erode(dilateImg, erodeImg, eleMentX, m_point, 4);		// 进行多次腐蚀
 	imshow("一次形态学处理之后", erodeImg);
 
 	Mat eleMentY = getStructuringElement(MORPH_RECT, Size(1, 15));	// 设置形态学处理窗口大小
@@ -59,7 +59,7 @@ int main()
 
 	imshow("二次形态学处理之后 膨胀前", erodeImg);
 	dilate(erodeImg, dilateImg, eleMentY, m_point, 2);
-	erode(dilateImg, erodeImg, eleMentY, m_point, 1);
+	//erode(dilateImg, erodeImg, eleMentY, m_point, 1);
 	//dilate(erodeImg, dilateImg, eleMentX, m_point, 2);
 	imshow("二次形态学处理之后 膨胀后", dilateImg);
 
@@ -68,24 +68,7 @@ int main()
 	medianBlur(blurrImg, blurrImg, 15);
 	imshow("三次形态学处理之后", blurrImg);
 
-
-	//dilate(candyImage, dilateImg, eleMent1);	// 多次膨胀操作
-	//dilate(candyImage, binOriImg, eleMent1);	// 多次膨胀操作
-	//dilate(candyImage, binOriImg, eleMent1);	// 多次膨胀操作
-	//dilate(candyImage, binOriImg, eleMent1);	// 多次膨胀操作
-
-	//erode(binOriImg, binOriImg, eleMent1);	// 进行多次腐蚀
-	//erode(binOriImg, binOriImg, eleMent1);	// 进行多次腐蚀
-	//
-	//Mat eleMentY = getStructuringElement(MORPH_RECT, Size(12, 6));	// 设置形态学处理窗口大小
-	//dilate(binOriImg, candyImage, eleMent2);	// 多次膨胀操作
-	//dilate(binOriImg, candyImage, eleMent2);	// 多次膨胀操作
-	//dilate(binOriImg, candyImage, eleMent2);	// 多次膨胀操作
-	//dilate(binOriImg, candyImage, eleMent2);	// 多次膨胀操作
-
-	//imshow("形态学处理后图片1", binOriImg);
-	//imshow("形态学处理后图片3", candyImage);
-#else
+#else	// 第二种方法，只能识别少数特定的图片，兼容性较差，不推荐这样处理
 
 	// 二值化处理
 	int img_R, img_G, img_B;	// RGB各个通道的值
@@ -130,16 +113,16 @@ int main()
 
 #endif
 
-	if (blurrImg.channels() != 1)
+	if (blurrImg.channels() != 1)	// 如果已经是灰化的图像，则不需要灰化
 	{
 		cvtColor(blurrImg, blurrImg, COLOR_RGB2GRAY);
 	}
 
-
+	// 找到轮廓
 	Mat coutourImg, inImg;
 	coutourImg = blurrImg.clone();
 	vector<vector<Point> > contours;
-	coutourImg.convertTo(inImg, CV_8UC1);
+	coutourImg.convertTo(inImg, CV_8UC1);	// 将图片转化为固定格式
 	findContours(inImg, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);	// 找到形状
 
 	// 画出轮廓
@@ -148,10 +131,12 @@ int main()
 	// 轮廓表示为一个矩形 车牌提取
 	Mat roiImg;
 	vector<Point> rectPoint;
-	for (int i = 0 ; i < contours.size() ; i++)
+	for (int i = 0 ; i < contours.size() ; i++)	// 遍历所有找到的结果，找到符合车牌特征的矩形
 	{
 		Rect curRect = boundingRect(Mat(contours[i]));
 		cout << "contours " << i << " height = " << curRect.height << "   width = " << curRect.width << endl;
+
+		// 矩形的长宽比（1.8-8）&& 矩形面积（3000-55000）
 		if ((float)curRect.width / curRect.height >= 1.8 && (float)curRect.width / curRect.height <= 8 && 
 			((curRect.width * curRect.height) > 3000) && (curRect.width * curRect.height) < 55000)
 		{
