@@ -15,9 +15,8 @@ const int origin_B = 196;
 int main()
 {
 	Mat originImg;
-	int img_R, img_G, img_B;	// RGB各个通道的值
 
-	originImg = imread("test.jpg", IMREAD_COLOR);	// 读取图像
+	originImg = imread("test4.jpg", IMREAD_COLOR);	// 读取图像
 	if (originImg.empty())	// 判断读取图片是否成功
 	{
 		cout << "图像打开失败" << endl;
@@ -39,7 +38,7 @@ int main()
 	Mat grayImg, gussImg;
 	cvtColor(resizeImg, grayImg, COLOR_RGB2GRAY);	// 灰化
 
-#if 0
+#if 1
 
 	GaussianBlur(grayImg, gussImg, Size(3, 3), 3, 0); //高斯函数滤波
 
@@ -48,28 +47,47 @@ int main()
 	imshow("边缘检测后的图", candyImage);
 
 	// 形态学的处理
-	Mat binOriImg;
-	Mat eleMent = getStructuringElement(MORPH_RECT, Size(6, 3));	// 设置形态学处理窗口大小
-	dilate(candyImage, binOriImg, eleMent);	// 多次膨胀操作
-	dilate(candyImage, binOriImg, eleMent);	// 多次膨胀操作
-	dilate(candyImage, binOriImg, eleMent);	// 多次膨胀操作
-	dilate(candyImage, binOriImg, eleMent);	// 多次膨胀操作
-	dilate(candyImage, binOriImg, eleMent);	// 多次膨胀操作
+	Mat dilateImg, erodeImg;
+	Point m_point(-1, -1);
+	Mat eleMentX = getStructuringElement(MORPH_RECT, Size(19, 2));	// 设置形态学处理窗口大小
+	dilate(candyImage, dilateImg, eleMentX, m_point, 2);	// 多次膨胀操作
+	erode(dilateImg, erodeImg, eleMentX, m_point, 4);	// 进行多次腐蚀
+	imshow("一次形态学处理之后", erodeImg);
 
-	erode(binOriImg, binOriImg, eleMent);	// 进行多次腐蚀
-	erode(binOriImg, binOriImg, eleMent);	// 进行多次腐蚀
-	
-	Mat eleMent1 = getStructuringElement(MORPH_RECT, Size(12, 6));	// 设置形态学处理窗口大小
-	dilate(binOriImg, candyImage, eleMent1);	// 多次膨胀操作
-	dilate(binOriImg, candyImage, eleMent1);	// 多次膨胀操作
-	dilate(binOriImg, candyImage, eleMent1);	// 多次膨胀操作
-	dilate(binOriImg, candyImage, eleMent1);	// 多次膨胀操作
+	Mat eleMentY = getStructuringElement(MORPH_RECT, Size(1, 20));	// 设置形态学处理窗口大小
+	dilate(erodeImg, dilateImg, eleMentX, m_point, 2);
+	erode(dilateImg, erodeImg, eleMentY, m_point, 1);
 
-	imshow("形态学处理后图片1", binOriImg);
-	imshow("形态学处理后图片3", candyImage);
-#endif
+	imshow("二次形态学处理之后 腐蚀前", erodeImg);
+	dilate(erodeImg, dilateImg, eleMentY, m_point, 2);
+	imshow("二次形态学处理之后 腐蚀后", dilateImg);
+
+	Mat blurrImg;
+	medianBlur(dilateImg, blurrImg, 15);
+	medianBlur(blurrImg, blurrImg, 15);
+	imshow("三次形态学处理之后", blurrImg);
+
+
+	//dilate(candyImage, dilateImg, eleMent1);	// 多次膨胀操作
+	//dilate(candyImage, binOriImg, eleMent1);	// 多次膨胀操作
+	//dilate(candyImage, binOriImg, eleMent1);	// 多次膨胀操作
+	//dilate(candyImage, binOriImg, eleMent1);	// 多次膨胀操作
+
+	//erode(binOriImg, binOriImg, eleMent1);	// 进行多次腐蚀
+	//erode(binOriImg, binOriImg, eleMent1);	// 进行多次腐蚀
+	//
+	//Mat eleMentY = getStructuringElement(MORPH_RECT, Size(12, 6));	// 设置形态学处理窗口大小
+	//dilate(binOriImg, candyImage, eleMent2);	// 多次膨胀操作
+	//dilate(binOriImg, candyImage, eleMent2);	// 多次膨胀操作
+	//dilate(binOriImg, candyImage, eleMent2);	// 多次膨胀操作
+	//dilate(binOriImg, candyImage, eleMent2);	// 多次膨胀操作
+
+	//imshow("形态学处理后图片1", binOriImg);
+	//imshow("形态学处理后图片3", candyImage);
+#else
 
 	// 二值化处理
+	int img_R, img_G, img_B;	// RGB各个通道的值
 	Mat eleMent = getStructuringElement(MORPH_RECT, Size(8, 4));	// 设置形态学处理窗口大小
 	for (int i = 0 ; i < resizeImg.rows ; i++)
 	{
@@ -94,26 +112,31 @@ int main()
 		}
 	}
 
-	Mat binOriImg;
+	Mat blurrImg;
 	//Mat eleMent = getStructuringElement(MORPH_RECT, Size(2, 2));	// 设置形态学处理窗口大小
-	dilate(resizeImg, binOriImg, eleMent);	// 多次膨胀操作
-	dilate(resizeImg, binOriImg, eleMent);	// 多次膨胀操作
-	dilate(resizeImg, binOriImg, eleMent);	// 多次膨胀操作
-	dilate(resizeImg, binOriImg, eleMent);	// 多次膨胀操作
+	dilate(resizeImg, blurrImg, eleMent);	// 多次膨胀操作
+	dilate(resizeImg, blurrImg, eleMent);	// 多次膨胀操作
+	dilate(resizeImg, blurrImg, eleMent);	// 多次膨胀操作
+	dilate(resizeImg, blurrImg, eleMent);	// 多次膨胀操作
 
-	erode(binOriImg, binOriImg, eleMent);	// 进行多次腐蚀
-	erode(binOriImg, binOriImg, eleMent);	// 进行多次腐蚀
-	erode(binOriImg, binOriImg, eleMent);	// 进行多次腐蚀
+	erode(blurrImg, blurrImg, eleMent);	// 进行多次腐蚀
+	erode(blurrImg, blurrImg, eleMent);	// 进行多次腐蚀
+	erode(blurrImg, blurrImg, eleMent);	// 进行多次腐蚀
 	
 
 	//imshow("二值化处理后图", resizeImg);
-	imshow("形态学处理后图片2", binOriImg);
+	imshow("形态学处理后图片2", blurrImg);
 
-	cvtColor(binOriImg, binOriImg, COLOR_RGB2GRAY);
+#endif
+
+	if (blurrImg.channels() != 1)
+	{
+		cvtColor(blurrImg, blurrImg, COLOR_RGB2GRAY);
+	}
 
 
 	Mat coutourImg, inImg;
-	coutourImg = binOriImg.clone();
+	coutourImg = blurrImg.clone();
 	vector<vector<Point> > contours;
 	coutourImg.convertTo(inImg, CV_8UC1);
 	findContours(inImg, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);	// 找到形状
@@ -128,16 +151,25 @@ int main()
 	{
 		Rect curRect = boundingRect(Mat(contours[i]));
 		cout << "contours " << i << " height = " << curRect.height << "   width = " << curRect.width << endl;
-		if ((float)curRect.width / curRect.height >= 2.2 && (float)curRect.width / curRect.height <= 3.6 && 
-			((curRect.width * curRect.height) > 10000) && (curRect.width * curRect.height) < 15000)
+		if ((float)curRect.width / curRect.height >= 1.8 && (float)curRect.width / curRect.height <= 5.6 && 
+			((curRect.width * curRect.height) > 5000) && (curRect.width * curRect.height) < 25000)
 		{
 			cout << "-----------------找到！！！！！-------------" << endl;
 			cout << "R.x = " << curRect.x << "  R.y = " << curRect.y << endl;
 			rectangle(coutourImg, curRect, Scalar(0, 0, 255), 3);
 			roiImg = resizeImgOri(curRect);	// 找到了车牌位置
+			imshow("形态学处理后图片3", roiImg);	// 找到了车牌位置
 		}
 	}
-	imshow("形态学处理后图片3", roiImg);	// 找到了车牌位置
+	
+	if (!roiImg.data)
+	{
+		cout << "---------------------------------------" << endl;
+		cout << "----------未找到匹配的矩形！！---------" << endl;
+		cout << "---------------------------------------" << endl;
+		waitKey(0);
+		return -1;
+	}
 
 	Mat canImg;
 	Canny(roiImg, canImg, 450, 120, 3);
@@ -149,7 +181,7 @@ int main()
 	imshow("形态学处理后图片5", roiThreadImg);
 	
 
-	
+
 	waitKey(0);
 	return 0;
 }
