@@ -16,7 +16,7 @@ int main()
 {
 	Mat originImg;
 
-	originImg = imread("test4.jpg", IMREAD_COLOR);	// 读取图像
+	originImg = imread("test6.jpg", IMREAD_COLOR);	// 读取图像
 	if (originImg.empty())	// 判断读取图片是否成功
 	{
 		cout << "图像打开失败" << endl;
@@ -41,26 +41,27 @@ int main()
 #if 1
 
 	GaussianBlur(grayImg, gussImg, Size(3, 3), 3, 0); //高斯函数滤波
-
 	Mat candyImage;
-	Canny(gussImg, candyImage, 300, 250, 3);	// 边缘检测
+	Canny(gussImg, candyImage, 300, 200, 3);	// 边缘检测
 	imshow("边缘检测后的图", candyImage);
 
 	// 形态学的处理
 	Mat dilateImg, erodeImg;
 	Point m_point(-1, -1);
-	Mat eleMentX = getStructuringElement(MORPH_RECT, Size(19, 2));	// 设置形态学处理窗口大小
+	Mat eleMentX = getStructuringElement(MORPH_RECT, Size(19, 1));	// 设置形态学处理窗口大小
 	dilate(candyImage, dilateImg, eleMentX, m_point, 2);	// 多次膨胀操作
 	erode(dilateImg, erodeImg, eleMentX, m_point, 4);	// 进行多次腐蚀
 	imshow("一次形态学处理之后", erodeImg);
 
-	Mat eleMentY = getStructuringElement(MORPH_RECT, Size(1, 20));	// 设置形态学处理窗口大小
+	Mat eleMentY = getStructuringElement(MORPH_RECT, Size(1, 15));	// 设置形态学处理窗口大小
 	dilate(erodeImg, dilateImg, eleMentX, m_point, 2);
 	erode(dilateImg, erodeImg, eleMentY, m_point, 1);
 
-	imshow("二次形态学处理之后 腐蚀前", erodeImg);
+	imshow("二次形态学处理之后 膨胀前", erodeImg);
 	dilate(erodeImg, dilateImg, eleMentY, m_point, 2);
-	imshow("二次形态学处理之后 腐蚀后", dilateImg);
+	erode(dilateImg, erodeImg, eleMentY, m_point, 1);
+	//dilate(erodeImg, dilateImg, eleMentX, m_point, 2);
+	imshow("二次形态学处理之后 膨胀后", dilateImg);
 
 	Mat blurrImg;
 	medianBlur(dilateImg, blurrImg, 15);
@@ -151,8 +152,8 @@ int main()
 	{
 		Rect curRect = boundingRect(Mat(contours[i]));
 		cout << "contours " << i << " height = " << curRect.height << "   width = " << curRect.width << endl;
-		if ((float)curRect.width / curRect.height >= 1.8 && (float)curRect.width / curRect.height <= 5.6 && 
-			((curRect.width * curRect.height) > 5000) && (curRect.width * curRect.height) < 25000)
+		if ((float)curRect.width / curRect.height >= 1.8 && (float)curRect.width / curRect.height <= 8 && 
+			((curRect.width * curRect.height) > 3000) && (curRect.width * curRect.height) < 55000)
 		{
 			cout << "-----------------找到！！！！！-------------" << endl;
 			cout << "R.x = " << curRect.x << "  R.y = " << curRect.y << endl;
