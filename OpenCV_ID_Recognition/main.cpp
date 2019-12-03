@@ -189,7 +189,7 @@ int main()
 			if (m_temple > 0)
 			{
 				shuzhiShadow[i] += 1;
-				jishuconut++;
+				jishuconut++;	// 统计每一列的有多少有值的像素点
 			}
 		}
 	}
