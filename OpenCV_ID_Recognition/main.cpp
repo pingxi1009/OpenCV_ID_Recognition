@@ -16,7 +16,7 @@ int main()
 {
 	Mat originImg;
 
-	originImg = imread("test6.jpg", IMREAD_COLOR);	// 读取图像
+	originImg = imread("test2.jpg", IMREAD_COLOR);	// 读取图像
 	if (originImg.empty())	// 判断读取图片是否成功
 	{
 		cout << "图像打开失败" << endl;
@@ -42,8 +42,9 @@ int main()
 
 	GaussianBlur(grayImg, gussImg, Size(3, 3), 3, 0);	//高斯函数滤波
 	Mat candyImage;
+	//Canny(gussImg, candyImage, 250, 70, 3);			// 边缘检测
 	Canny(gussImg, candyImage, 300, 200, 3);			// 边缘检测
-	imshow("边缘检测后的图", candyImage);
+	//imshow("边缘检测后的图", candyImage);
 
 	// 形态学的处理
 	Mat dilateImg, erodeImg;
@@ -51,22 +52,22 @@ int main()
 	Mat eleMentX = getStructuringElement(MORPH_RECT, Size(19, 1));	// 设置形态学处理窗口大小
 	dilate(candyImage, dilateImg, eleMentX, m_point, 2);	// 多次膨胀操作
 	erode(dilateImg, erodeImg, eleMentX, m_point, 4);		// 进行多次腐蚀
-	imshow("一次形态学处理之后", erodeImg);
+	//imshow("一次形态学处理之后", erodeImg);
 
 	Mat eleMentY = getStructuringElement(MORPH_RECT, Size(1, 15));	// 设置形态学处理窗口大小
 	dilate(erodeImg, dilateImg, eleMentX, m_point, 2);
 	erode(dilateImg, erodeImg, eleMentY, m_point, 1);
 
-	imshow("二次形态学处理之后 膨胀前", erodeImg);
+	//imshow("二次形态学处理之后 膨胀前", erodeImg);
 	dilate(erodeImg, dilateImg, eleMentY, m_point, 2);
 	//erode(dilateImg, erodeImg, eleMentY, m_point, 1);
 	//dilate(erodeImg, dilateImg, eleMentX, m_point, 2);
-	imshow("二次形态学处理之后 膨胀后", dilateImg);
+	//imshow("二次形态学处理之后 膨胀后", dilateImg);
 
 	Mat blurrImg;
 	medianBlur(dilateImg, blurrImg, 15);
 	medianBlur(blurrImg, blurrImg, 15);
-	imshow("三次形态学处理之后", blurrImg);
+	//imshow("三次形态学处理之后", blurrImg);
 
 #else	// 第二种方法，只能识别少数特定的图片，兼容性较差，不推荐这样处理
 
@@ -137,14 +138,14 @@ int main()
 		cout << "contours " << i << " height = " << curRect.height << "   width = " << curRect.width << endl;
 
 		// 矩形的长宽比（1.8-8）&& 矩形面积（3000-55000）
-		if ((float)curRect.width / curRect.height >= 1.8 && (float)curRect.width / curRect.height <= 8 && 
+		if ((float)curRect.width / curRect.height >= 2.0 && (float)curRect.width / curRect.height <= 8 && 
 			((curRect.width * curRect.height) > 3000) && (curRect.width * curRect.height) < 55000)
 		{
 			cout << "-----------------找到！！！！！-------------" << endl;
 			cout << "R.x = " << curRect.x << "  R.y = " << curRect.y << endl;
 			rectangle(coutourImg, curRect, Scalar(0, 0, 255), 3);
 			roiImg = resizeImgOri(curRect);	// 找到了车牌位置
-			imshow("形态学处理后图片3", roiImg);	// 找到了车牌位置
+			//imshow("形态学处理后图片3", roiImg);	// 找到了车牌位置
 		}
 	}
 	
@@ -166,6 +167,83 @@ int main()
 	threshold(canImg, roiThreadImg, 50, 255, THRESH_BINARY);
 	imshow("形态学处理后图片5", roiThreadImg);
 	
+	// 分割字符
+	// 1，竖直方向上的投影
+	Mat roiCloneImg = roiThreadImg.clone();
+	roiCloneImg.type();
+	//cvtColor(roiThreadImg, roiCloneImg, COLOR_RGB2GRAY);		// 灰化
+	//roiCloneImg.at<uchar>(0, 0) = 22;
+	//cout << "某个像素点为 = " << endl;
+	//cout << roiCloneImg << endl;
+	int roiCol = roiThreadImg.cols, roiRow = roiThreadImg.rows;
+	//ushort m_temple;
+	int shuzhiShadow[500] = { 0, };
+	int jishuconut = 0;
+	for (int i = 0 ; i < roiCol - 1 ; i++)
+	{
+		for (int j = 0 ; j < roiRow -1 ; j++)
+		{
+			uchar m_temple = roiThreadImg.at<uchar>(j, i);
+			//shuzhiShadow[i] = 0;
+			//cout << "-Debug-" << roiThreadImg.at<uchar>(i, j) << endl;
+			if (m_temple > 0)
+			{
+				shuzhiShadow[i] += 1;
+				jishuconut++;
+			}
+		}
+	}
+
+	cout << "youduoshao  = " << jishuconut << endl;
+	// 对数组进行滤波
+	for (int i = 0 ; i < roiCol - 1 ; i++)
+	{
+		if (shuzhiShadow[i] >= 4)	// 一列的有4个以上则认为是有效字符
+		{
+			shuzhiShadow[i] = 1;
+		}
+		else if(shuzhiShadow[i] <= 3)	// 一列的少于3个的则认为不是有效字符
+		{
+			shuzhiShadow[i] = 0;
+		}
+	}
+
+	// 确认字符的位置
+	int count = 0;
+	int m_temple;
+	int positionReal[50], positionEmpty[50];
+	bool m_CountFlag = false;
+	for (int i = 0 ; i < roiCol - 1 ; i++)
+	{
+		m_temple = shuzhiShadow[i];
+		if (m_temple == 1 && !m_CountFlag)
+		{
+			m_CountFlag = true;
+			positionReal[count] = i;
+			continue;
+		}
+		if (m_temple == 0 && m_CountFlag)
+		{
+			m_CountFlag = false;
+			positionEmpty[count] = i;
+			count++;
+		}
+		if (i == roiCol - 2 && m_CountFlag)
+		{
+			m_CountFlag = false;
+			positionEmpty[count] = i;
+			count++;
+		}
+	}
+
+	// 记录所有字符的宽度
+	int roiWides[50] = { 0, };
+	for (int i = 0 ; i < count ; i++)
+	{
+		cout << "positionReal = " << positionReal[i] << "   positionEmpty = " << positionEmpty[i] << 
+			" ------ distance = " << positionEmpty[i] - positionReal[i] << endl;
+		roiWides[i] = positionEmpty[i] - positionReal[i];
+	}
 
 
 	waitKey(0);
