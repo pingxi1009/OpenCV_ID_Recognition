@@ -16,7 +16,7 @@ int main()
 {
 	Mat originImg;
 
-	originImg = imread("test2.jpg", IMREAD_COLOR);	// ∂¡»°ÕºœÒ
+	originImg = imread("test3.jpg", IMREAD_COLOR);	// ∂¡»°ÕºœÒ
 	if (originImg.empty())	// ≈–∂œ∂¡»°Õº∆¨ «∑Ò≥…π¶
 	{
 		cout << "ÕºœÒ¥Úø™ ß∞‹" << endl;
