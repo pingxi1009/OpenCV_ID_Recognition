@@ -16,7 +16,7 @@ int main()
 {
 	Mat originImg;
 
-	originImg = imread("test3.jpg", IMREAD_COLOR);	// 读取图像
+	originImg = imread("test2.jpg", IMREAD_COLOR);	// 读取图像
 	if (originImg.empty())	// 判断读取图片是否成功
 	{
 		cout << "图像打开失败" << endl;
@@ -44,7 +44,7 @@ int main()
 	Mat candyImage;
 	//Canny(gussImg, candyImage, 250, 70, 3);			// 边缘检测
 	Canny(gussImg, candyImage, 300, 200, 3);			// 边缘检测
-	//imshow("边缘检测后的图", candyImage);
+	imshow("边缘检测后的图", candyImage);
 
 	// 形态学的处理
 	Mat dilateImg, erodeImg;
@@ -67,7 +67,7 @@ int main()
 	Mat blurrImg;
 	medianBlur(dilateImg, blurrImg, 15);
 	medianBlur(blurrImg, blurrImg, 15);
-	//imshow("三次形态学处理之后", blurrImg);
+	imshow("三次形态学处理之后", blurrImg);
 
 #else	// 第二种方法，只能识别少数特定的图片，兼容性较差，不推荐这样处理
 
@@ -138,14 +138,18 @@ int main()
 		cout << "contours " << i << " height = " << curRect.height << "   width = " << curRect.width << endl;
 
 		// 矩形的长宽比（1.8-8）&& 矩形面积（3000-55000）
-		if ((float)curRect.width / curRect.height >= 2.0 && (float)curRect.width / curRect.height <= 8 && 
-			((curRect.width * curRect.height) > 3000) && (curRect.width * curRect.height) < 55000)
+		if ((float)curRect.width / curRect.height >= 2.0 && (float)curRect.width / curRect.height <= 8)
 		{
-			cout << "-----------------找到！！！！！-------------" << endl;
-			cout << "R.x = " << curRect.x << "  R.y = " << curRect.y << endl;
-			rectangle(coutourImg, curRect, Scalar(0, 0, 255), 3);
-			roiImg = resizeImgOri(curRect);	// 找到了车牌位置
-			//imshow("形态学处理后图片3", roiImg);	// 找到了车牌位置
+			cout << "=====Area = " << curRect.width * curRect.height << "=====" << endl;
+			if (((curRect.width * curRect.height) > 4800) && (curRect.width * curRect.height) < 55000 )
+			{
+				cout << "-----------------找到！！！！！-------------" << endl;
+				cout << "R.x = " << curRect.x << "  R.y = " << curRect.y << endl;
+				rectangle(coutourImg, curRect, Scalar(0, 0, 255), 3);
+				roiImg = resizeImgOri(curRect);	// 找到了车牌位置
+				imshow("形态学处理后图片3", roiImg);	// 找到了车牌位置
+			}
+			
 		}
 	}
 	
