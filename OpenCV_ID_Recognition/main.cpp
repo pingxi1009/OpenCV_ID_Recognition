@@ -175,10 +175,6 @@ int main()
 	// 1，竖直方向上的投影
 	Mat roiCloneImg = roiThreadImg.clone();
 	roiCloneImg.type();
-	//cvtColor(roiThreadImg, roiCloneImg, COLOR_RGB2GRAY);		// 灰化
-	//roiCloneImg.at<uchar>(0, 0) = 22;
-	//cout << "某个像素点为 = " << endl;
-	//cout << roiCloneImg << endl;
 	int roiCol = roiThreadImg.cols, roiRow = roiThreadImg.rows;
 	//ushort m_temple;
 	int shuzhiShadow[500] = { 0, };
@@ -187,7 +183,7 @@ int main()
 	{
 		for (int j = 0 ; j < roiRow -1 ; j++)
 		{
-			uchar m_temple = roiThreadImg.at<uchar>(j, i);
+			uchar m_temple = roiThreadImg.at<uchar>(j, i);	// y轴和x轴要转换一下，不然容易内存泄漏！！！
 			//shuzhiShadow[i] = 0;
 			//cout << "-Debug-" << roiThreadImg.at<uchar>(i, j) << endl;
 			if (m_temple > 0)
