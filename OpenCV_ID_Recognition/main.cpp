@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <vector>
 
 using namespace std;
 using namespace cv;
@@ -243,6 +244,25 @@ int main()
 		cout << "positionReal = " << positionReal[i] << "   positionEmpty = " << positionEmpty[i] << 
 			" ------ distance = " << positionEmpty[i] - positionReal[i] << endl;
 		roiWides[i] = positionEmpty[i] - positionReal[i];
+	}
+
+	vector <double> strWide;
+	for (int i = 0 ; i < 50 ; i++)
+	{
+		if (roiWides[i] >= 5)
+		{
+			strWide.push_back(roiWides[i]);
+		}
+		else
+		{
+			roiWides[i] = 0;
+		}
+	}
+
+	cout << "=======得出的有效矩形的宽度=======" << endl;
+	for (vector<double>::iterator itor = strWide.begin() ; itor != strWide.end() ; itor++)
+	{
+		cout << " [ " << *itor << " ] " << endl;
 	}
 
 
