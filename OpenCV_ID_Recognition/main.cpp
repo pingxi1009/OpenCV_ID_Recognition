@@ -249,13 +249,6 @@ int main()
 		roiWides[i] = positionEmpty[i] - positionReal[i];
 
 		strWide.push_back(roiWides[i]);
-
-		//if (roiWides[i] >= Img_Mix_Wide)
-		//{
-		//	positionX1[j] = positionReal[i];
-		//	positionX2[j] = positionEmpty[i];
-		//	++j;
-		//}
 	}
 
 	// 获取车牌字符的最小宽度
@@ -272,7 +265,8 @@ int main()
 		}
 		else 
 		{
-			Img_Mix_Wide = *itor;
+			cout << "宽度 = " << *itor << endl;
+			Img_Mix_Wide = (int)*itor;
 			break;
 		}
 	}
@@ -306,7 +300,7 @@ int main()
 	for (vector<double>::iterator itor = endWide.begin() ; itor != endWide.end() ; itor++)
 	{
 		cout << " [ " << *itor << " ] " << endl;
-		Rect tempRect(positionX1[indexI], 0, *itor, roiThreadImg.rows);
+		Rect tempRect(positionX1[indexI], 0, (int)*itor, roiThreadImg.rows);
 		cout << "PositionX = " << positionX1[indexI] << endl;
 		indexI++;
 		licensenImg = roiThreadImg(tempRect);
