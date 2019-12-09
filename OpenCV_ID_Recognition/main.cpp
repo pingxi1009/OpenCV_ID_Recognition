@@ -17,7 +17,7 @@ int main()
 {
 	Mat originImg;
 
-	originImg = imread("test3.jpg", IMREAD_COLOR);	// 读取图像
+	originImg = imread("test8.jpg", IMREAD_COLOR);	// 读取图像
 	if (originImg.empty())	// 判断读取图片是否成功
 	{
 		cout << "图像打开失败" << endl;
@@ -258,24 +258,26 @@ int main()
 		//}
 	}
 
+	// 获取车牌字符的最小宽度
 	strWideTemp = strWide;
 	int Img_Mix_Wide = 0;	// 初始化车牌的最小宽度
 	sort(strWideTemp.begin(), strWideTemp.end());
 	int indexTemp = 0;
-	for (vector<double>::iterator itor = strWide.end(); itor != strWide.begin() ; itor--)
+	for (vector<double>::reverse_iterator itor = strWideTemp.rbegin(); itor != strWideTemp.rend() ; itor++)
 	{
-		if (indexTemp < 7)
+		if (indexTemp < 6)
 		{
 			indexTemp++;
-			cout << "宽度 = " << 
+			cout << "宽度 = " << *itor << endl;
 		}
-		else
+		else 
 		{
 			Img_Mix_Wide = *itor;
 			break;
 		}
 	}
 	
+	// 将所有超过最小宽度的有效字符存到一个vector中
 	vector <double> endWide;
 	for (vector<double>::iterator itor = strWide.begin(); itor != strWide.end(); itor++)
 	{
@@ -285,6 +287,7 @@ int main()
 		}
 	}
 
+	// 获取有效字符开始的x轴位置
 	for (int i = 0, j = 0; i < count; i++)
 	{
 		if (roiWides[i] >= Img_Mix_Wide)
@@ -296,7 +299,7 @@ int main()
 	}
 
 	
-
+	// 画出所有的有效字符，并按顺序排列
 	cout << "=======得出的有效矩形的宽度=======" << endl;
 	int indexI = 0;
 	Mat licensenImg = Mat(Scalar(0));
