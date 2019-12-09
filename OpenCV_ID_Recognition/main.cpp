@@ -17,7 +17,7 @@ int main()
 {
 	Mat originImg;
 
-	originImg = imread("test2.jpg", IMREAD_COLOR);	// 读取图像
+	originImg = imread("test3.jpg", IMREAD_COLOR);	// 读取图像
 	if (originImg.empty())	// 判断读取图片是否成功
 	{
 		cout << "图像打开失败" << endl;
@@ -238,31 +238,80 @@ int main()
 	}
 
 	// 记录所有字符的宽度
+	vector <double> strWide, strWideTemp;
 	int roiWides[50] = { 0, };
-	for (int i = 0 ; i < count ; i++)
+	int positionX1[50] = {0, };
+	int positionX2[50] = {0, };
+	for (int i = 0 ,j = 0; i < count ; i++)
 	{
 		cout << "positionReal = " << positionReal[i] << "   positionEmpty = " << positionEmpty[i] << 
 			" ------ distance = " << positionEmpty[i] - positionReal[i] << endl;
 		roiWides[i] = positionEmpty[i] - positionReal[i];
+
+		strWide.push_back(roiWides[i]);
+
+		//if (roiWides[i] >= Img_Mix_Wide)
+		//{
+		//	positionX1[j] = positionReal[i];
+		//	positionX2[j] = positionEmpty[i];
+		//	++j;
+		//}
 	}
 
-	vector <double> strWide;
-	for (int i = 0 ; i < 50 ; i++)
+	strWideTemp = strWide;
+	int Img_Mix_Wide = 0;	// 初始化车牌的最小宽度
+	sort(strWideTemp.begin(), strWideTemp.end());
+	int indexTemp = 0;
+	for (vector<double>::iterator itor = strWide.end(); itor != strWide.begin() ; itor--)
 	{
-		if (roiWides[i] >= 5)
+		if (indexTemp < 7)
 		{
-			strWide.push_back(roiWides[i]);
+			indexTemp++;
+			cout << "宽度 = " << 
 		}
 		else
 		{
-			roiWides[i] = 0;
+			Img_Mix_Wide = *itor;
+			break;
+		}
+	}
+	
+	vector <double> endWide;
+	for (vector<double>::iterator itor = strWide.begin(); itor != strWide.end(); itor++)
+	{
+		if (*itor >= Img_Mix_Wide)
+		{
+			endWide.push_back(*itor);
 		}
 	}
 
+	for (int i = 0, j = 0; i < count; i++)
+	{
+		if (roiWides[i] >= Img_Mix_Wide)
+		{
+			positionX1[j] = positionReal[i];
+			positionX2[j] = positionEmpty[i];
+			++j;
+		}
+	}
+
+	
+
 	cout << "=======得出的有效矩形的宽度=======" << endl;
-	for (vector<double>::iterator itor = strWide.begin() ; itor != strWide.end() ; itor++)
+	int indexI = 0;
+	Mat licensenImg = Mat(Scalar(0));
+	for (vector<double>::iterator itor = endWide.begin() ; itor != endWide.end() ; itor++)
 	{
 		cout << " [ " << *itor << " ] " << endl;
+		Rect tempRect(positionX1[indexI], 0, *itor, roiThreadImg.rows);
+		cout << "PositionX = " << positionX1[indexI] << endl;
+		indexI++;
+		licensenImg = roiThreadImg(tempRect);
+		imshow("result11" + indexI, licensenImg);
+		ostringstream oss;
+		oss << "licenseIma" << indexI << ".jpg";
+		imwrite(oss.str(), licensenImg);
+
 	}
 
 
