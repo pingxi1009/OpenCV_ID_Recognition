@@ -311,6 +311,7 @@ int main()
 
 	}
 
+	// 用聚类算法 K-means聚类算法实现分开字符 2019-12-11
 
 	waitKey(0);
 	return 0;
