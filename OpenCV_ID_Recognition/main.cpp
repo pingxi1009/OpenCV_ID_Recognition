@@ -319,7 +319,7 @@ int main()
 
 	// 14更新
 
-	// 15
+	// 15  要及时
 
 	waitKey(0);
 	return 0;
