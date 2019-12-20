@@ -329,6 +329,8 @@ int main()
 
 	// 19  gengxin 
 
+	// 20 ¸üĞÂ
+
 	waitKey(0);
 	return 0;
 }
