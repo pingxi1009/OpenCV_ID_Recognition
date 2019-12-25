@@ -335,6 +335,8 @@ int main()
 
 	// 22
 
+	// 尝试用 K-Mean聚类算法 来分类，分开每个字符
+
 	waitKey(0);
 	return 0;
 }
